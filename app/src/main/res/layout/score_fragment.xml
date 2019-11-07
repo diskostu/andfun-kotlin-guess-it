@@ -48,13 +48,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
-        <!-- TODO (04) Use the LiveData from ScoreViewModel to set the score_text text attribute -->
+        <!-- DONE (04) Use the LiveData from ScoreViewModel to set the score_text text attribute -->
+        <!-- important: android:text='@{scoreViewModel.score}' won't work -->
         <TextView
             android:id="@+id/score_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
+
+            android:text='@{String.valueOf(scoreViewModel.score)}'
             android:fontFamily="sans-serif"
             android:textColor="@color/black_text_color"
             android:textSize="34sp"
