@@ -16,7 +16,11 @@
 
 package com.example.android.guesstheword.screens.game
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,8 +29,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment.findNavController
-import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
+
 
 /**
  * Fragment where the game is played
@@ -43,7 +47,7 @@ class GameFragment : Fragment() {
         // Inflate view and obtain an instance of the binding class
         binding = DataBindingUtil.inflate(
                 inflater,
-                R.layout.game_fragment,
+                com.example.android.guesstheword.R.layout.game_fragment,
                 container,
                 false
         )
@@ -57,7 +61,7 @@ class GameFragment : Fragment() {
 
         // Specify the current activity as the lifecycle owner of the binding. This is used so that
         // the binding can observe LiveData updates
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
 
         // Sets up event listening to navigate the player when the game is finished
         viewModel.eventGameFinish.observe(this, Observer { isFinished ->
@@ -69,13 +73,31 @@ class GameFragment : Fragment() {
             }
         })
 
-        // TODO (09) Created an observer for the buzz event which calls the buzz method with the
-        // correct pattern. Remember to call onBuzzComplete!
+        // DONE (09) Created an observer for the buzz event which calls the buzz method with the
+        //   correct pattern. Remember to call onBuzzComplete!
+        viewModel.buzzEvent.observe(this, Observer {buzztype ->
+            if (buzztype != GameViewModel.BuzzType.NO_BUZZ) {
+                buzz(buzztype.pattern)
+                viewModel.onBuzzComplete()
+            }
+        })
 
         return binding.root
 
     }
 
-    // TODO (08) Copy over the buzz method here
+    // DONE (08) Copy over the buzz method here
+    private fun buzz(pattern: LongArray) {
+        val buzzer = activity?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
 
+        buzzer?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                buzzer.vibrate(VibrationEffect.createWaveform(pattern, -1))
+            } else {
+                //deprecated in API 26
+                @Suppress("DEPRECATION")
+                buzzer.vibrate(pattern, -1)
+            }
+        }
+    }
 }
